@@ -1,99 +1,99 @@
 package main
 
-type PureLangParser Peg {
-
+type PureLang Peg {
 }
 
 #############################################################
 
-Program     <- _ Statements? EOF
+CompilationUnit <- _ Statements? EOF
 
-Statements  <- Expr (Semicolon Expr)* Semicolon?
+Statements      <- Expr (Semicolon Expr)* Semicolon?
 
-Expr        <- Literal
-             / Call
-             / NonCall
+Expr            <- Literal
+                 / Call
+                 / NonCall
 
-NonCall     <- Block
-             / Lambda
-             / Declaration
-             / Assignment
-             / Identifier
-             / OpenParen Expr CloseParen
+NonCall         <- Block
+                 / Lambda
+                 / Declaration
+                 / Identifier
+                 / OpenParen Expr CloseParen
+                 / Operator
 
-Block       <- OpenBrace Statements CloseBrace
+Block           <- OpenBrace Statements CloseBrace
 
-Declaration <- Identifier (Colon Type)? ColonEqual Expr
-             / Identifier Colon Type
+Declaration     <- Identifier (Colon Type)? ColonEqual Expr
+                 / Identifier Colon Type
+                 / Operator ColonEqual Lambda
 
-Assignment  <- Identifier Equal Expr
+Lambda          <- OpenParen LambdaArgs? CloseParen Type? Block
 
-Lambda      <- OpenParen LambdaArgs? CloseParen Type? Block
+LambdaArgs      <- LambdaArg (Comma LambdaArg)*
 
-LambdaArgs  <- LambdaArg (Comma LambdaArg)*
+LambdaArg       <- DeclareArg
+                 / Identifier
 
-LambdaArg   <- DeclareArg
-             / Identifier
+Call            <- NonCall (OpenParen CallArgs? CloseParen)+
 
-Call        <- NonCall (OpenParen CallArgs? CloseParen)+
+CallArgs        <- CallArg (Comma CallArg)*
 
-CallArgs    <- CallArg (Comma CallArg)*
+CallArg         <- DeclareArg
+                 / Expr
 
-CallArg     <- DeclareArg
-             / Expr
+DeclareArg      <- Identifier (Colon Type)? Equal Expr
 
-DeclareArg  <- Identifier (Colon Type)? Equal Expr
+Type            <- Call
+                 / Identifier
 
-Type        <- Call
-             / Identifier
+Operator        <- Equal
 
 #############################################################
 
-Identifier  <- [_a-zA-Z] [_a-zA-Z0-9]* _
+Identifier      <- [_a-zA-Z] [_a-zA-Z0-9]* _
 
-Literal     <- String / Character / Integer / Real
+Literal         <- String / Character / Integer / Real
 
-String      <- '"' ('\\"' / [^"])* '"' _
+String          <- '"' ('\\"' / [^"])* '"' _
 
-Character   <- "'" ("\\'" / [^'])* "'" _
+Character       <- "'" ("\\'" / [^'])* "'" _
 
-Integer     <- Sign IntegerPart _
+Integer         <- Sign IntegerPart _
 
-IntegerPart <- '0x' [0-9a-fA-F] [_0-9a-fA-F]*
-             / '0o' [0-7] [_0-7]*
-             / '0b' [01] [_01]*
-             / Decimal
+IntegerPart     <- '0x' [0-9a-fA-F] [_0-9a-fA-F]*
+                 / '0o' [0-7] [_0-7]*
+                 / '0b' [01] [_01]*
+                 / Decimal
 
-Real        <- Sign Decimal ('.' Decimal)? ([eE] Sign Decimal)? _
+Real            <- Sign Decimal ('.' Decimal)? ([eE] Sign Decimal)? _
 
-Decimal     <- [0-9] [_0-9]*
+Decimal         <- [0-9] [_0-9]*
 
-Sign        <- [-+]?
+Sign            <- [-+]?
 
-OpenParen   <- '(' _
+OpenParen       <- '(' _
 
-CloseParen  <- ')' _
+CloseParen      <- ')' _
 
-OpenBrace   <- '{' _
+OpenBrace       <- '{' _
 
-CloseBrace  <- '}' _
+CloseBrace      <- '}' _
 
-Colon       <- ':' _
+Colon           <- ':' _
 
-Semicolon   <- ';' _
+Semicolon       <- ';' _
 
-Equal       <- '=' _
+Equal           <- '=' _
 
-ColonEqual  <- ':=' _
+ColonEqual      <- ':=' _
 
-Comma       <- ',' _
+Comma           <- ',' _
 
-_           <- (Space / Comment)*
+_               <- (Space / Comment)*
 
-Comment     <- '#' ( !EOL . )* EOL
+Comment         <- '#' ( !EOL . )* EOL
 
-Space       <- ' ' / '\t' / EOL
+Space           <- ' ' / '\t' / EOL
 
-EOL         <- '\r\n' / '\n' / '\r'
+EOL             <- '\r\n' / '\n' / '\r'
 
-EOF         <- !.
+EOF             <- !.
