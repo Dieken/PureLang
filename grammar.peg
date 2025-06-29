@@ -1,0 +1,99 @@
+package main
+
+type PureLangParser Peg {
+
+}
+
+#############################################################
+
+Program     <- _ Statements? EOF
+
+Statements  <- Expr (Semicolon Expr)* Semicolon?
+
+Expr        <- Literal
+             / Call
+             / NonCall
+
+NonCall     <- Block
+             / Lambda
+             / Declaration
+             / Assignment
+             / Identifier
+             / OpenParen Expr CloseParen
+
+Block       <- OpenBrace Statements CloseBrace
+
+Declaration <- Identifier (Colon Type)? ColonEqual Expr
+             / Identifier Colon Type
+
+Assignment  <- Identifier Equal Expr
+
+Lambda      <- OpenParen LambdaArgs? CloseParen Type? Block
+
+LambdaArgs  <- LambdaArg (Comma LambdaArg)*
+
+LambdaArg   <- DeclareArg
+             / Identifier
+
+Call        <- NonCall (OpenParen CallArgs? CloseParen)+
+
+CallArgs    <- CallArg (Comma CallArg)*
+
+CallArg     <- DeclareArg
+             / Expr
+
+DeclareArg  <- Identifier (Colon Type)? Equal Expr
+
+Type        <- Call
+             / Identifier
+
+#############################################################
+
+Identifier  <- [_a-zA-Z] [_a-zA-Z0-9]* _
+
+Literal     <- String / Character / Integer / Real
+
+String      <- '"' ('\\"' / [^"])* '"' _
+
+Character   <- "'" ("\\'" / [^'])* "'" _
+
+Integer     <- Sign IntegerPart _
+
+IntegerPart <- '0x' [0-9a-fA-F] [_0-9a-fA-F]*
+             / '0o' [0-7] [_0-7]*
+             / '0b' [01] [_01]*
+             / Decimal
+
+Real        <- Sign Decimal ('.' Decimal)? ([eE] Sign Decimal)? _
+
+Decimal     <- [0-9] [_0-9]*
+
+Sign        <- [-+]?
+
+OpenParen   <- '(' _
+
+CloseParen  <- ')' _
+
+OpenBrace   <- '{' _
+
+CloseBrace  <- '}' _
+
+Colon       <- ':' _
+
+Semicolon   <- ';' _
+
+Equal       <- '=' _
+
+ColonEqual  <- ':=' _
+
+Comma       <- ',' _
+
+_           <- (Space / Comment)*
+
+Comment     <- '#' ( !EOL . )* EOL
+
+Space       <- ' ' / '\t' / EOL
+
+EOL         <- '\r\n' / '\n' / '\r'
+
+EOF         <- !.
