@@ -66,6 +66,8 @@ DeclareArg      <- Declaration Equal Expr
 Type            <- Call
                  / Identifier
 
+EscapedOperator <- Backtick Operator Backtick
+
 #############################################################
 
 Identifier      <- [_a-zA-Z] [_a-zA-Z0-9]* _
@@ -110,8 +112,6 @@ Comma           <- ',' _
 Backtick        <- '`' _
 
 # Follow precedence of Scala operators: https://docs.scala-lang.org/tour/operators.html
-
-EscapedOperator <- Backtick Operator Backtick
 
 Operator        <- OperatorP0 / OperatorP1 / OperatorP2 / OperatorP3 / OperatorP4
                  / OperatorP5 / OperatorP6 / OperatorP7 / OperatorP8 / OperatorP9
