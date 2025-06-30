@@ -9,22 +9,42 @@ CompilationUnit <- _ Statements? EOF
 
 Statements      <- Expr (Semicolon Expr)* Semicolon?
 
-Expr            <- Literal
-                 / Call
-                 / NonCall
+Expr            <- OperandP9? (OperatorP9 OperandP9)*
 
-NonCall         <- Block
-                 / Lambda
+OperandP9       <- OperandP8? (OperatorP8 OperandP8)*
+
+OperandP8       <- OperandP7? (OperatorP7 OperandP7)*
+
+OperandP7       <- OperandP6? (OperatorP6 OperandP6)*
+
+OperandP6       <- OperandP5? (OperatorP5 OperandP5)*
+
+OperandP5       <- OperandP4? (OperatorP4 OperandP4)*
+
+OperandP4       <- OperandP3? (OperatorP3 OperandP3)*
+
+OperandP3       <- OperandP2? (OperatorP2 OperandP2)*
+
+OperandP2       <- OperandP1? (OperatorP1 OperandP1)*
+
+OperandP1       <- OperandP0? (OperatorP0 OperandP0)*
+
+OperandP0       <- Literal
                  / Declaration
+                 / Call
+                 / Callable
+
+Callable        <- Block
+                 / Lambda
                  / Identifier
-                 / OpenParen Expr CloseParen
-                 / Operator
+                 / SubExpr
+                 / EscapedOperator
 
 Block           <- OpenBrace Statements CloseBrace
 
-Declaration     <- Identifier (Colon Type)? ColonEqual Expr
-                 / Identifier Colon Type
-                 / Operator ColonEqual Lambda
+Declaration     <- Identifier Colon Type
+
+SubExpr         <- OpenParen Expr CloseParen
 
 Lambda          <- OpenParen LambdaArgs? CloseParen Type? Block
 
@@ -33,25 +53,24 @@ LambdaArgs      <- LambdaArg (Comma LambdaArg)*
 LambdaArg       <- DeclareArg
                  / Identifier
 
-Call            <- NonCall (OpenParen CallArgs? CloseParen)+
+Call            <- Callable (OpenParen CallArgs? CloseParen)+
 
 CallArgs        <- CallArg (Comma CallArg)*
 
 CallArg         <- DeclareArg
                  / Expr
 
-DeclareArg      <- Identifier (Colon Type)? Equal Expr
+DeclareArg      <- Declaration Equal Expr
+                 / Identifier Equal Expr
 
 Type            <- Call
                  / Identifier
-
-Operator        <- Equal
 
 #############################################################
 
 Identifier      <- [_a-zA-Z] [_a-zA-Z0-9]* _
 
-Literal         <- String / Character / Integer / Real
+Literal         <- String / Character / Real / Integer
 
 String          <- '"' ('\\"' / [^"])* '"' _
 
@@ -64,7 +83,9 @@ IntegerPart     <- '0x' [0-9a-fA-F] [_0-9a-fA-F]*
                  / '0b' [01] [_01]*
                  / Decimal
 
-Real            <- Sign Decimal ('.' Decimal)? ([eE] Sign Decimal)? _
+Real            <- Sign Decimal ('.' Decimal Exponent? / Exponent) _
+
+Exponent        <- [eE] Sign Decimal
 
 Decimal         <- [0-9] [_0-9]*
 
@@ -84,9 +105,38 @@ Semicolon       <- ';' _
 
 Equal           <- '=' _
 
-ColonEqual      <- ':=' _
-
 Comma           <- ',' _
+
+Backtick        <- '`' _
+
+# Follow precedence of Scala operators: https://docs.scala-lang.org/tour/operators.html
+
+EscapedOperator <- Backtick Operator Backtick
+
+Operator        <- OperatorP0 / OperatorP1 / OperatorP2 / OperatorP3 / OperatorP4
+                 / OperatorP5 / OperatorP6 / OperatorP7 / OperatorP8 / OperatorP9
+
+OperatorP0      <- [~@.] OperatorChar* _
+
+OperatorP1      <- [*/%] OperatorChar* _
+
+OperatorP2      <- [-+] OperatorChar* _
+
+OperatorP3      <- ':' OperatorChar+ _
+
+OperatorP4      <- [<>] OperatorChar* _
+
+OperatorP5      <- [=!] OperatorChar* _
+
+OperatorP6      <- '&' OperatorChar* _
+
+OperatorP7      <- '^' OperatorChar* _
+
+OperatorP8      <- '|' OperatorChar* _
+
+OperatorP9      <- '$' OperatorChar* _
+
+OperatorChar    <- [~!@$%^&*\-+=|<>./]
 
 _               <- (Space / Comment)*
 
