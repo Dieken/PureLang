@@ -136,7 +136,7 @@ OperatorP8      <- '|' OperatorChar* _
 
 OperatorP9      <- '$' OperatorChar* _
 
-OperatorChar    <- [~!@$%^&*\-+=|<>./]
+OperatorChar    <- [~!@$%^&*\-+=|:<>./]
 
 _               <- (Space / Comment)*
 
