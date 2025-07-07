@@ -60,7 +60,7 @@ CallArgs        <- CallArg (Comma CallArg)*
 CallArg         <- DeclareArg
                  / Expr
 
-DeclareArg      <- Declaration Equal Expr
+DeclareArg      <- Declaration (Equal Expr)?
                  / Identifier Equal Expr
 
 Type            <- Call
