@@ -23,7 +23,7 @@ String := std.types.String;
 Void := std.types.Void;
 
 
-a: Int = 3 + 4;                     # explicit type declaration and assignment
+a: Int := 3 + 4;                    # explicit type declaration, define & assign
 
 a = `+`(5, 6);                      # assignment and explicit call of operator
 
@@ -39,9 +39,9 @@ b := std.Map(1 -> 2, 3 -> 4);       # type inference, and customized operator "-
 
 a = 1.negative() + "hello".length();    # function on literal
 
-f := (i: Int = 10, j: Int = 20) Int { i + j };              # multi-method
+f := (i: Int = 10, j: Int = 20) Int { i + j };                 # multi-method
 
-f := (i: Double = 1.0, j: Double = 2.0) Double { i + j };    # multi-method
+f := (i: Double = 1.0, j: Double = 2.0) Double { i + j };      # multi-method
 
 a = f();
 
@@ -56,11 +56,11 @@ d := f(5.0, 6.0);
 f = `+`;                            # assignment clears all previous multi-methods
 
 # Product type, like `case class` in Scala
-User = std.types.ProductType(name: String = "Jack", age: Int = 20);
+User := std.types.ProductType(name: String = "Jack", age: Int = 20);
 
 greet := (user: User) Void { println(user.name + fmt(" with age {user.age}")) };
 
-you = User(name = "You", age = 30); # type is callable as constructor
+you := User(name = "You", age = 30); # type is callable as constructor
 greet(you);
 you.greet();                        # unified call syntax
 ```
