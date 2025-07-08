@@ -53,12 +53,12 @@ a = f(100, 200);
 
 d := f(5.0, 6.0);
 
-f = `+`;                            # assignment clears all previous multi-method
+f = `+`;                            # assignment clears all previous multi-methods
 
-# Product type, just like `record class` in Scala
+# Product type, like `case class` in Scala
 User = std.types.ProductType(name: String = "Jack", age: Int = 20);
 
-greet := (user: User = 1) Void { println(user.name + fmt(" with age {user.age}")) };
+greet := (user: User) Void { println(user.name + fmt(" with age {user.age}")) };
 
 you = User(name = "You", age = 30); # type is callable as constructor
 greet(you);
